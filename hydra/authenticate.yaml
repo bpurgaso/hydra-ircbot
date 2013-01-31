@@ -1,0 +1,30 @@
+defaultgroup : user
+groups:
+    user:
+        admin_level: 1000               #Very non-priviledged admin_level
+        inherits_from: None             #Establish hierarchy
+        extra_commands:                 #Extra commands normally forbidden
+          - place_holder_command_name
+          - place_holder_command_name2
+        disallowed_commands:            #Explicitly banned commands for group
+          - place_holder_command_name_X
+    moderator:
+        admin_level: 25                 #Priviledged admin_level
+        inherits_from: user             #Establish hierarchy
+        extra_commands:                 #Extra commands normally forbidden
+          - place_holder_command_name
+        disallowed_commands:            #Explicitly banned commands for group
+          - place_holder_command_name_X
+    admin:
+        admin_level: 1                  #Very priviledged admin_level
+        inherits_from: moderator        #Establish hierarchy
+        extra_commands:                 #Extra commands normally forbidden
+          - place_holder_command_name
+          - place_holder_command_name2
+        disallowed_commands:            #Explicitly banned commands for group
+          - place_holder_command_name_X
+    creator:
+        admin_level: 0                  #Full Access
+        inherits_from: admin            #Establish hierarchy
+        extra_commands: []              #No extra needed
+        disallowed_commands: []         #No disallowed commands
