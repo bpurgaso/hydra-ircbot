@@ -1,0 +1,4 @@
+script exec:
+ - blocking mode (in-irc toggle command)
+ - SET (sets runtime-variables -- creator only) :: script_timeout, etc
+ - reload X (where X is a config value i.e. reload authenticate = reload authenticate.yaml)
