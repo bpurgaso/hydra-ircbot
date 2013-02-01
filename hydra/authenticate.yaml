@@ -17,4 +17,5 @@ groups:
           - place_holder_command_name2
     creator:
         inherits_from: admin            #Establish hierarchy
-        commands: ['*']                 #No extra needed
+        commands:                       #No extra needed
+          - '*'
