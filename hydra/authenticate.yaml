@@ -3,23 +3,45 @@ groups:
     user:
         inherits_from: None             #Establish hierarchy
         commands:                       #Command List
-          - place_holder_command_name
-          - place_holder_command_name2
+          - user_command_1
+          - user_command_2
     moderator:
         inherits_from: user             #Establish hierarchy
         commands:                       #Command List
-          - place_holder_command_name
-          - place_holder_command_name_X
+          - moderator_command_1
+          - moderator_command_2
     admin:
         inherits_from: moderator        #Establish hierarchy
         commands:                       #Extra commands normally forbidden
-          - place_holder_command_name
-          - place_holder_command_name2
+          - admin_command_1
+          - admin_command_2
     creator:
         inherits_from: admin            #Establish hierarchy
         commands:                       #No extra needed
-          - '*'
+          - '*'                         #First position * unlocks all commands
 users:
     bpurgaso:
         group: creator
+commands:
+    rainbow:                            #Command Name
+        type: external                  #External command, execute with subproc
+        encapsulate: True               #Sanitize and surround params in quotes
+        timeout: 0                      #No timeout
+    swedish:
+        type: external
+        encapsulate: True
+        timeout: 0
+    beaker:
+        type: external
+        encapsulate: True
+        timeout: 0
+    tune:
+        type: external
+        encapsulate: False              #Sanitize input, do not put in quotes
+        timeout: 60                     #After 60 seconds abort and warn user
+    promote:
+        type: internal                  #Internal command, used for perms check
+        encapsulate: False
+        timeout: 0
+    
 
