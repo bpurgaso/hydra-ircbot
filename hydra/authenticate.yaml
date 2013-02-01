@@ -19,3 +19,7 @@ groups:
         inherits_from: admin            #Establish hierarchy
         commands:                       #No extra needed
           - '*'
+users:
+    bpurgaso:
+        group: creator
+

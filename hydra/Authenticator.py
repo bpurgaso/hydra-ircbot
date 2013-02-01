@@ -31,16 +31,32 @@ class Authenticator(object):
         f.close()
 
     def inheritsFrom(self, group):
-        pass
-
-    def canUse(self, user, script):
-        pass
+        return self.config['groups'][group]['inherits_from']
 
     def getGroup(self, user):
-        pass
+        try:
+            return self.config['users'][user]['group']
+        except:
+            return self.config['defaultgroup']
 
     def getAvailableCommandsForUser(self, user):
-        pass
+        return self.getAvailableCommandsForGroup(self.getGroup(user))
 
     def getAvailableCommandsForGroup(self, group):
-        pass
+        commands = self.config['groups'][group]['commands']
+
+        while True:
+            group = self.config['groups'][group]['inherits_from']
+            commands.extend(self.config['groups'][group]['commands'])
+            if self.config['groups'][group]['inherits_from'] == 'None':
+                break
+        return commands
+
+###dummy code (driver / test code)
+at = Authenticator()
+print "Moderator inherits from:  %s" % at.inheritsFrom('moderator')
+print "Creator inherits from:  %s" % at.inheritsFrom('creator')
+print "Commands available to creator:  %s" % at.getAvailableCommandsForGroup(
+                                                                    'creator')
+print "Commands available to admin:  %s" % at.getAvailableCommandsForGroup(
+                                                                    'admin')
