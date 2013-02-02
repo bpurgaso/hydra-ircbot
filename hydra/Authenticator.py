@@ -25,7 +25,7 @@ class Authenticator(object):
         exit()
 
     def loadConfigFromDisk(self):
-        f = open('authenticate.yaml')
+        f = open('config.yaml')
         tmp = yaml.load(f)
         f.close()
         return tmp

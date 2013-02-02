@@ -50,5 +50,4 @@ commands:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0
-    
 
