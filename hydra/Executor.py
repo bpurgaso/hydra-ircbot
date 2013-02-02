@@ -24,6 +24,24 @@ class TimeoutException(Exception):
     pass
 
 
+class watchDogWorker(threading.Thread):
+    '''
+    watchDog thread, launches secondary timeout enabling thread
+    '''
+
+    def __init__(self, command, timeout):
+        threading.Thread.__init__(self)
+        self.command = command
+        self.timeout = timeout
+
+    def run(self):
+        ew = externalWorker(self.command, self.timeout)
+        ew.daemon = True
+        self.results = ew.startWithTimeout()
+
+        #call back to the Executor and invoke some method to send results back
+
+
 class externalWorker(threading.Thread):
     '''
     External script executing threads
@@ -46,6 +64,8 @@ class externalWorker(threading.Thread):
             self.results = ['TIMEOUT']
         else:
             self.results = self.tmp
+
+        return self.results
 
     def run(self):
         self.tmp = self.__shellCall(self.prefix + self.command + self.suffix)
@@ -86,16 +106,23 @@ class Executor(object):
          - be sure to set demon status
          - Executor always checks with Authenticator before running a command
          - Executor reacts differently based on Authenticator's response
+         - Executor needs a method call to allow it to send back to the invoker
         '''
 
 '''
 Dummy code below
 '''
 if __name__ == '__main__':
-    ew1 = externalWorker('echo hello world', 10)
-    ew2 = externalWorker('sleep 18', 2)
-    ew1.startWithTimeout()
-    print ew1.results
+    ew1 = watchDogWorker('echo hello world', 2)
+    ew2 = watchDogWorker('sleep 18', 2)
+    ew3 = watchDogWorker('echo hello world3', 2)
+    ew1.start()
+    ew2.start()
+    ew3.start()
 
-    ew2.startWithTimeout()
+    ew1.join()
+    print ew1.results
+    ew3.join()
+    print ew3.results
+    ew2.join()
     print ew2.results
