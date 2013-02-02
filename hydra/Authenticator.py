@@ -19,7 +19,7 @@ class Authenticator(object):
         '''
         self.config = self.loadConfigFromDisk()
         self.sanityCheck()
-    
+
     def die(self, msg):
         print msg
         exit()
@@ -41,25 +41,29 @@ class Authenticator(object):
         #check all inherits_from
         for i in self.config['groups'].keys():
             inherit_entry = self.config['groups'][i]['inherits_from']
-            if inherit_entry not in self.config['groups'].keys() and inherit_entry != 'None':
-                print "%sGroup '%s' has invalid inheirts_from entry:  %s." % (prefix, i, inherit_entry)
+            if inherit_entry not in self.config['groups'].keys()\
+             and inherit_entry != 'None':
+                print "%sGroup '%s' has invalid inheirts_from entry:  %s." %\
+                  (prefix, i, inherit_entry)
                 sane = False
-        
+
         #check all command entries for each group
         for i in self.config['groups'].keys():
             command_list = self.config['groups'][i]['commands']
             for j in command_list:
                 if j not in self.getAllCommands() and j != '*':
-                    print "%sGroup '%s' has invalid command entry:  %s" % (prefix, i, j)
+                    print "%sGroup '%s' has invalid command entry:  %s" %\
+                      (prefix, i, j)
                     sane = False
-        
+
         #check all users for invalid group entries
         for i in self.config['users'].keys():
             group_entry = self.config['users'][i]['group']
             if group_entry not in self.config['groups'].keys():
-                print "%sUser '%s' has an invalid group membership:  %s" % (prefix, i, group_entry)
+                print "%sUser '%s' has an invalid group membership:  %s" %\
+                  (prefix, i, group_entry)
                 sane = False
-        
+
         if not sane:
             self.die('System not sane, halting.')
 
@@ -110,11 +114,11 @@ class Authenticator(object):
         else:
             return False
 
-###dummy code (driver / test code)
-at = Authenticator()
-print "Moderator inherits from:  %s" % at.inheritsFrom('moderator')
-print "Creator inherits from:  %s" % at.inheritsFrom('creator')
-print "Commands available to creator:  %s" % at.getAvailableCommandsForGroup(
-                                                                    'creator')
-print "Commands available to admin:  %s" % at.getAvailableCommandsForGroup(
-                                                                    'admin')
+####dummy code (driver / test code)
+#at = Authenticator()
+#print "Moderator inherits from:  %s" % at.inheritsFrom('moderator')
+#print "Creator inherits from:  %s" % at.inheritsFrom('creator')
+#print "Commands available to creator:  %s" % at.getAvailableCommandsForGroup(
+#                                                                    'creator')
+#print "Commands available to admin:  %s" % at.getAvailableCommandsForGroup(
+#                                                                    'admin')
