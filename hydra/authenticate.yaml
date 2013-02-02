@@ -3,18 +3,17 @@ groups:
     user:
         inherits_from: None             #Establish hierarchy
         commands:                       #Command List
-          - user_command_1
-          - user_command_2
+          - rainbow
+          - swedish
+          - beaker
     moderator:
         inherits_from: user             #Establish hierarchy
         commands:                       #Command List
-          - moderator_command_1
-          - moderator_command_2
+          - promote
     admin:
         inherits_from: moderator        #Establish hierarchy
-        commands:                       #Extra commands normally forbidden
-          - admin_command_1
-          - admin_command_2
+        commands:                       #Command List
+          - reload
     creator:
         inherits_from: admin            #Establish hierarchy
         commands:                       #No extra needed
@@ -40,6 +39,14 @@ commands:
         encapsulate: False              #Sanitize input, do not put in quotes
         timeout: 60                     #After 60 seconds abort and warn user
     promote:
+        type: internal                  #Internal command, used for perms check
+        encapsulate: False
+        timeout: 0
+    reload:
+        type: internal                  #Internal command, used for perms check
+        encapsulate: False
+        timeout: 0
+    set:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0
