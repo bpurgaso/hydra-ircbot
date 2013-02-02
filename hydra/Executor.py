@@ -54,4 +54,10 @@ class Executor(object):
 
     def invokeCommand(self, command):
         pass
-        #needs timeout functionality... perhaps in workerThread
+        '''needs timeout functionality... perhaps in workerThread
+        Carefully consider how Executor and Authenticator will interact before
+        proceeding.  This could get messy.
+         - Make Executor the only entry-point when executing command
+         - Executor always checks with Authenticator before running a command
+         - Executor reacts differently based on Authenticator's reponse
+        '''
