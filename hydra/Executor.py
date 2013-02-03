@@ -10,6 +10,7 @@ import threading
 import signal
 from ConfigManager import ConfigManager
 from subprocess import Popen, STDOUT, PIPE
+from Authenticator import Authenticator
 
 
 '''
@@ -30,7 +31,7 @@ class watchDogWorker(threading.Thread):
     watchDog thread, launches secondary timeout enabling thread
     '''
 
-    def __init__(self, command, timeout):
+    def __init__(self, command, timeout, user, channel):
         threading.Thread.__init__(self)
         self.command = command
         self.timeout = timeout
@@ -39,6 +40,8 @@ class watchDogWorker(threading.Thread):
         ew = externalWorker(self.command, self.timeout)
         ew.daemon = True
         self.results = ew.startWithTimeout()
+        #SEND TO IRC CODE HERE
+        pass
 
         #call back to the Executor and invoke some method to send results back
 
@@ -99,7 +102,7 @@ class Executor(object):
     def reloadConfig(self):
         self.conf = self.configManager.getConfig()
 
-    def invokeCommand(self, command):
+    def invokeCommand(self, command, user, channel):
         pass
         '''
          - Make Executor the only entry-point when executing command
@@ -108,6 +111,14 @@ class Executor(object):
          - Executor reacts differently based on Authenticator's response
          - Executor needs a method call to allow it to send back to the invoker
         '''
+        if self.auth.isUserAuthorized(command):
+            watchDogTmp = watchDogWorker('python ./bin/%s' % command,\
+                    self.conf['commands'][command]['timeout'], user, channel)
+            watchDogTmp.daemon = True
+            watchDogTmp.start()
+        else:
+            #SEND TO IRC CODE HERE
+            pass
 
 #'''
 #Dummy code below
