@@ -5,9 +5,6 @@ Created on Jan 31, 2013
 '''
 
 
-import yaml
-
-
 class Authenticator(object):
     '''
     classdocs
@@ -19,11 +16,11 @@ class Authenticator(object):
         '''
         self.configManager = configManager
         self.configManager.registerListener(self)  # reg for config updates
-        self.config = self.reloadConfig()
+        self.reloadConfig()
         self.sanityCheck()
 
     def reloadConfig(self):
-        self.conf = self.configManager.getConfig()
+        self.config = self.configManager.getConfig()
 
     #utility methods
     def inheritsFrom(self, group):
@@ -66,3 +63,40 @@ class Authenticator(object):
             return True
         else:
             return False
+
+    def sanityCheck(self):
+        '''
+        all inherits_from are valid
+        all command entries within a group map to valid commands
+        all group entries within a user map to valid group
+        '''
+        prefix = '[YAML Sanity Failure]  '
+        sane = True
+        #check all inherits_from
+        for i in self.config['groups'].keys():
+            inherit_entry = self.config['groups'][i]['inherits_from']
+            if inherit_entry not in self.config['groups'].keys()\
+             and inherit_entry != 'None':
+                print "%sGroup '%s' has invalid inheirts_from entry:  %s." %\
+                  (prefix, i, inherit_entry)
+                sane = False
+
+        #check all command entries for each group
+        for i in self.config['groups'].keys():
+            command_list = self.config['groups'][i]['commands']
+            for j in command_list:
+                if j not in self.getAllCommands() and j != '*':
+                    print "%sGroup '%s' has invalid command entry:  %s" %\
+                      (prefix, i, j)
+                    sane = False
+
+        #check all users for invalid group entries
+        for i in self.config['users'].keys():
+            group_entry = self.config['users'][i]['group']
+            if group_entry not in self.config['groups'].keys():
+                print "%sUser '%s' has an invalid group membership:  %s" %\
+                  (prefix, i, group_entry)
+                sane = False
+
+        if not sane:
+            self.die('System not sane, halting.')

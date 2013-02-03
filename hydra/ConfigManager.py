@@ -21,7 +21,7 @@ class ConfigManager(object):
         Constructor
         '''
         self.config = self.loadConfigFromDisk()
-        self.sanityCheck()
+        print self.config
         self.listeners = []
 
     def loadConfigFromDisk(self):
@@ -49,40 +49,3 @@ class ConfigManager(object):
         f.write(yaml.dump(self.config, default_flow_style=False))
         f.close()
         self.reload()
-
-    def sanityCheck(self):
-        '''
-        all inherits_from are valid
-        all command entries within a group map to valid commands
-        all group entries within a user map to valid group
-        '''
-        prefix = '[YAML Sanity Failure]  '
-        sane = True
-        #check all inherits_from
-        for i in self.config['groups'].keys():
-            inherit_entry = self.config['groups'][i]['inherits_from']
-            if inherit_entry not in self.config['groups'].keys()\
-             and inherit_entry != 'None':
-                print "%sGroup '%s' has invalid inheirts_from entry:  %s." %\
-                  (prefix, i, inherit_entry)
-                sane = False
-
-        #check all command entries for each group
-        for i in self.config['groups'].keys():
-            command_list = self.config['groups'][i]['commands']
-            for j in command_list:
-                if j not in self.getAllCommands() and j != '*':
-                    print "%sGroup '%s' has invalid command entry:  %s" %\
-                      (prefix, i, j)
-                    sane = False
-
-        #check all users for invalid group entries
-        for i in self.config['users'].keys():
-            group_entry = self.config['users'][i]['group']
-            if group_entry not in self.config['groups'].keys():
-                print "%sUser '%s' has an invalid group membership:  %s" %\
-                  (prefix, i, group_entry)
-                sane = False
-
-        if not sane:
-            self.die('System not sane, halting.')

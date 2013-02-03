@@ -100,10 +100,10 @@ class Executor(object):
         self.configManager = configManager         # Source of truth
         self.configManager.registerListener(self)  # reg for config updates
         self.auth = auth                           # Source of Authority
-        self.conf = self.reloadConfig()            # Load Config
+        self.reloadConfig()            # Load Config
 
     def reloadConfig(self):
-        self.conf = self.configManager.getConfig()
+        self.config = self.configManager.getConfig()
 
     def invokeCommand(self, command, user, channel, postToIRC=True):
         pass
