@@ -31,19 +31,22 @@ class watchDogWorker(threading.Thread):
     watchDog thread, launches secondary timeout enabling thread
     '''
 
-    def __init__(self, command, timeout, user, channel):
+    def __init__(self, command, timeout, user, channel, postToIRC):
         threading.Thread.__init__(self)
         self.command = command
         self.timeout = timeout
+        self.postToIRC = postToIRC
 
     def run(self):
         ew = externalWorker(self.command, self.timeout)
         ew.daemon = True
         self.results = ew.startWithTimeout()
-        #SEND TO IRC CODE HERE
-        pass
 
-        #call back to the Executor and invoke some method to send results back
+        if self.postToIRC:
+            #SEND TO IRC CODE HERE
+            pass
+        else:
+            return self.results
 
 
 class externalWorker(threading.Thread):
@@ -102,7 +105,7 @@ class Executor(object):
     def reloadConfig(self):
         self.conf = self.configManager.getConfig()
 
-    def invokeCommand(self, command, user, channel):
+    def invokeCommand(self, command, user, channel, postToIRC=True):
         pass
         '''
          - Make Executor the only entry-point when executing command
@@ -113,27 +116,12 @@ class Executor(object):
         '''
         if self.auth.isUserAuthorized(command):
             watchDogTmp = watchDogWorker('python ./bin/%s' % command,\
-                    self.conf['commands'][command]['timeout'], user, channel)
+                                self.conf['commands'][command]['timeout'],\
+                                user, channel, postToIRC)
             watchDogTmp.daemon = True
             watchDogTmp.start()
-        else:
+        elif not postToIRC:  # If unauthorized and not posting to IRC channel
+            return ['UNAUTHORIZED']
+        else:                # If authorized and we are posting to IRC channel
             #SEND TO IRC CODE HERE
             pass
-
-#'''
-#Dummy code below
-#'''
-#if __name__ == '__main__':
-#    ew1 = watchDogWorker('echo hello world', 2)
-#    ew2 = watchDogWorker('sleep 18', 2)
-#    ew3 = watchDogWorker('echo hello world3', 2)
-#    ew1.start()
-#    ew2.start()
-#    ew3.start()
-#
-#    ew1.join()
-#    print ew1.results
-#    ew3.join()
-#    print ew3.results
-#    ew2.join()
-#    print ew2.results
