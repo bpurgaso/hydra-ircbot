@@ -8,6 +8,7 @@ Created on Feb 1, 2013
 import yaml
 import threading
 import signal
+from ConfigManager import ConfigManager
 from subprocess import Popen, STDOUT, PIPE
 
 
@@ -86,18 +87,17 @@ class Executor(object):
     classdocs
     '''
 
-    def __init__(self, auth):
+    def __init__(self, configManager, auth):
         '''
         Constructor
         '''
-        self.auth = auth  # Source of Authority
-        self.conf = self.loadConfigFromDisk()
+        self.configManager = configManager         # Source of truth
+        self.configManager.registerListener(self)  # reg for config updates
+        self.auth = auth                           # Source of Authority
+        self.conf = self.reloadConfig()            # Load Config
 
-    def loadConfigFromDisk(self):
-        f = open('config.yaml')
-        tmp = yaml.load(f)
-        f.close()
-        return tmp
+    def reloadConfig(self):
+        self.conf = self.configManager.getConfig()
 
     def invokeCommand(self, command):
         pass
@@ -109,20 +109,20 @@ class Executor(object):
          - Executor needs a method call to allow it to send back to the invoker
         '''
 
-'''
-Dummy code below
-'''
-if __name__ == '__main__':
-    ew1 = watchDogWorker('echo hello world', 2)
-    ew2 = watchDogWorker('sleep 18', 2)
-    ew3 = watchDogWorker('echo hello world3', 2)
-    ew1.start()
-    ew2.start()
-    ew3.start()
-
-    ew1.join()
-    print ew1.results
-    ew3.join()
-    print ew3.results
-    ew2.join()
-    print ew2.results
+#'''
+#Dummy code below
+#'''
+#if __name__ == '__main__':
+#    ew1 = watchDogWorker('echo hello world', 2)
+#    ew2 = watchDogWorker('sleep 18', 2)
+#    ew3 = watchDogWorker('echo hello world3', 2)
+#    ew1.start()
+#    ew2.start()
+#    ew3.start()
+#
+#    ew1.join()
+#    print ew1.results
+#    ew3.join()
+#    print ew3.results
+#    ew2.join()
+#    print ew2.results
