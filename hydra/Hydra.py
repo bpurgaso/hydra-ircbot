@@ -41,6 +41,9 @@ class bot(irc.IRCClient):
         print "Joined %s." % (channel)
 
     def privmsg(self, user, channel, msg):
+        '''
+        Called whenever an inbound message arrives
+        '''
         pass
 
 
