@@ -31,7 +31,7 @@ groups:
           - '*'                         #First position * unlocks all commands
 users:
     bpurgaso:
-        group: admin
+        group: creator
 commands:
     rainbow:                            #Command Name
         type: external                  #External command, execute with subproc
