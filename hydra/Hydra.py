@@ -22,9 +22,26 @@ class bot(irc.IRCClient):
         return self.factory.nickname
     nickname = property(_get_nickname)
 
-    '''
-    Fill in the rest...
-    '''
+    def reloadConfig(self):
+        self.config = self.configManager.getConfig()
+
+    def signedOn(self):
+        #Initial Setup
+        self.configManager = self.factory.configManager
+        self.configManager.registerListener(self)
+        self.config = self.configManager.getConfig()
+        self.auth = self.factory.auth
+        self.executor = self.factory.executor
+        print "Signed on as %s." % (self.nickname)
+        for i in self.config['channels'].keys():
+            if self.config['channels'][i]['autojoin']:
+                irc.IRCClient.join(self, i, self.config['channels'][i]['key'])
+
+    def joined(self, channel):
+        print "Joined %s." % (channel)
+
+    def privmsg(self, user, channel, msg):
+        pass
 
 
 class botFactory(protocol.ClientFactory):
