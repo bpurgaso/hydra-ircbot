@@ -11,7 +11,7 @@ groups:
     user:
         inherits_from: None             #Establish hierarchy
         commands:                       #Command List
-          - helpjh
+          - help
           - rainbow
           - swedish
           - beaker
