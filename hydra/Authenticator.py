@@ -18,12 +18,13 @@ class Authenticator(object):
         self.configManager.registerListener(self)  # reg for config updates
         self.reloadConfig()
         self.sanityCheck()
-    
+
     def die(self, msg):
         print msg
         exit()
 
     def reloadConfig(self):
+        print "Authenticator:  Reloading Config"
         self.config = self.configManager.getConfig()
 
     #utility methods
@@ -46,11 +47,13 @@ class Authenticator(object):
             return self.getAllCommands()
 
         while True:
-            group = self.config['groups'][group]['inherits_from']
-            commands.extend(self.config['groups'][group]['commands'])
             if self.config['groups'][group]['inherits_from'] == 'None':
                 break
-        return commands
+            group = self.config['groups'][group]['inherits_from']
+            commands.extend(self.config['groups'][group]['commands'])
+        tmp = list(set(commands))
+        tmp.sort()
+        return tmp
 
     def getAllCommands(self):
         return self.config['commands'].keys()
@@ -67,6 +70,9 @@ class Authenticator(object):
             return True
         else:
             return False
+
+    def getHelpForCommand(self, command):
+        return self.config['commands'][command]['help']
 
     def sanityCheck(self):
         '''

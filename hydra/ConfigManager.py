@@ -21,7 +21,6 @@ class ConfigManager(object):
         Constructor
         '''
         self.config = self.loadConfigFromDisk()
-        print self.config
         self.listeners = []
 
     def loadConfigFromDisk(self):
@@ -31,7 +30,9 @@ class ConfigManager(object):
         return tmp
 
     def reload(self):
-        self.loadConfigFromDisk()
+        print self.config
+        self.config = self.loadConfigFromDisk()
+        print self.config
         for i in self.listeners:
             try:
                 i.reloadConfig()

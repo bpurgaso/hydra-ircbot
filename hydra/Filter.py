@@ -25,6 +25,7 @@ class FilterManager(object):
         self.config = self.reloadConfig()
 
     def reloadConfig(self):
+        print "Executor:  Reloading Config"
         self.config = self.configManager.getConfig()
 
     def filterMsg(self, message, user, channel):

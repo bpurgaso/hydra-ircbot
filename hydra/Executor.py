@@ -31,11 +31,13 @@ class watchDogWorker(threading.Thread):
     watchDog thread, launches secondary timeout enabling thread
     '''
 
-    def __init__(self, command, timeout, user, channel, postToIRC):
+    def __init__(self, bot, command, timeout, user, channel, postToIRC):
         threading.Thread.__init__(self)
         self.command = command
         self.timeout = timeout
         self.postToIRC = postToIRC
+        self.channel = channel
+        self.bot = bot
 
     def run(self):
         ew = externalWorker(self.command, self.timeout)
@@ -43,8 +45,7 @@ class watchDogWorker(threading.Thread):
         self.results = ew.startWithTimeout()
 
         if self.postToIRC:
-            #SEND TO IRC CODE HERE
-            pass
+            self.bot.postToIRC(self.channel, self.results)
         else:
             return self.results
 
@@ -103,10 +104,11 @@ class Executor(object):
         self.reloadConfig()            # Load Config
 
     def reloadConfig(self):
+        print "Executor:  Reloading Config"
         self.config = self.configManager.getConfig()
 
-    def invokeCommand(self, command, user, channel, params, postToIRC=True):
-        pass
+    def invokeCommand(self, bot, command, user, channel, params,\
+                                                     postToIRC=True):
         '''
          - Make Executor the only entry-point when executing command
          - be sure to set demon status
@@ -114,14 +116,13 @@ class Executor(object):
          - Executor reacts differently based on Authenticator's response
          - Executor needs a method call to allow it to send back to the invoker
         '''
-        if self.auth.isUserAuthorized(command):
-            watchDogTmp = watchDogWorker('python ./bin/%s.py %s' % (command,\
-                        params), self.conf['commands'][command]['timeout'],\
+        if self.auth.isUserAuthorized(command, user):
+            watchDogTmp = watchDogWorker(bot, 'python ./bin/%s.py %s' % (\
+                command, params), self.config['commands'][command]['timeout'],\
                                 user, channel, postToIRC)
             watchDogTmp.daemon = True
             watchDogTmp.start()
         elif not postToIRC:  # If unauthorized and not posting to IRC channel
             return ['UNAUTHORIZED']
         else:                # If authorized and we are posting to IRC channel
-            #SEND TO IRC CODE HERE
-            pass
+            bot.postToIRC(channel, ['UNAUTHORIZED'])

@@ -11,6 +11,7 @@ groups:
     user:
         inherits_from: None             #Establish hierarchy
         commands:                       #Command List
+          - help
           - rainbow
           - swedish
           - beaker
@@ -30,42 +31,46 @@ groups:
           - '*'                         #First position * unlocks all commands
 users:
     bpurgaso:
-        group: creator
+        group: user
 commands:
     rainbow:                            #Command Name
         type: external                  #External command, execute with subproc
         encapsulate: True               #Sanitize and surround params in quotes
-        timeout: 0                      #No timeout
+        timeout: 5                      #Minimal Timeout for external command
+        help: Colorfies Text!
     swedish:
         type: external
         encapsulate: True
-        timeout: 0
+        timeout: 5
+        help: Speak like the swedish chef!
     beaker:
         type: external
         encapsulate: True
-        timeout: 0
-    tune:
-        type: external
-        encapsulate: False              #Sanitize input, do not put in quotes
-        timeout: 60                     #After 60 seconds abort and warn user
+        timeout: 5
+        help: Speak like beaker!
     opme:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0
+        help: Request OP status from brobot.
     promote:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0
+        help: Unimplemented
     reload:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0
-    set:
-        type: internal                  #Internal command, used for perms check
-        encapsulate: False
-        timeout: 0
+        help: Reloads the global configs
     kick:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0
+        help: Kick a user or users from the channel!
+    help:
+        type: internal                  #Internal command, used for perms check
+        encapsulate: False
+        timeout: 0
+        help: Kick a user or users from the channel!
 

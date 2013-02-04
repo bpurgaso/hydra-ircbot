@@ -63,6 +63,24 @@ class bot(irc.IRCClient):
                 else:
                     self.msg(channel, "You aren't authorized for opme.")
 
+            #HELP
+            elif msg.rsplit()[1] == 'help':
+                if self.auth.isUserAuthorized('help', user):
+                    for i in self.auth.getAvailableCommandsForUser(user):
+                        self.msg(channel, '%s:  %s' %\
+                                 (i, self.auth.getHelpForCommand(i)))
+                        time.sleep(self.config['msg_delay'])
+                else:
+                    self.msg(channel, "You aren't authorized for help.")
+
+            #RELOAD
+            elif msg.rsplit()[1] == 'reload':
+                if self.auth.isUserAuthorized('reload', user):
+                    self.configManager.reload()
+                    self.msg(channel, "Configuration Reloaded")
+                else:
+                    self.msg(channel, "You aren't authorized for reload.")
+
             #KICK
             elif msg.rsplit()[1] == 'kick':
                 if self.auth.isUserAuthorized('kick', user):
@@ -78,16 +96,22 @@ class bot(irc.IRCClient):
                 External script execution goes here
                 '''
                 if self.auth.isUserAuthorized(msg.rsplit()[1], user):
-                    for i in self.executor.invokeCommand(msg.rsplit[1], user,\
-                                        channel, msg.rsplit()[1], " ".join(\
-                                                    msg.rsplit()[2:])):
-                        self.msg(channel, i)
-                        time.sleep(self.config['msg_delay'])
+                    #kick off the async call
+                    self.executor.invokeCommand(self, msg.rsplit()[1], user,\
+                                channel, " ".join(msg.rsplit()[2:]), True)
+                else:
+                    self.msg(channel, "You aren't authorized for %s." %\
+                             (msg.rsplit()[1]))
         else:
             '''
             filter processing go here
             '''
             pass
+
+    def postToIRC(self, channel, lst):
+        for i in lst:
+            self.msg(channel, i)
+            time.sleep(self.config['msg_delay'])
 
 
 class botFactory(protocol.ClientFactory):
