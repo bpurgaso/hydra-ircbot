@@ -1,3 +1,7 @@
+network : wright.freenode.net
+port : 6667
+nick : brobot
+
 defaultgroup : user
 groups:
     user:
