@@ -17,11 +17,13 @@ groups:
     moderator:
         inherits_from: user             #Establish hierarchy
         commands:                       #Command List
-          - promote
+          - reload
     admin:
         inherits_from: moderator        #Establish hierarchy
         commands:                       #Command List
-          - reload
+          - opme
+          - kick
+          - promote
     creator:
         inherits_from: admin            #Establish hierarchy
         commands:                       #No extra needed
@@ -46,6 +48,10 @@ commands:
         type: external
         encapsulate: False              #Sanitize input, do not put in quotes
         timeout: 60                     #After 60 seconds abort and warn user
+    opme:
+        type: internal                  #Internal command, used for perms check
+        encapsulate: False
+        timeout: 0
     promote:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
@@ -55,6 +61,10 @@ commands:
         encapsulate: False
         timeout: 0
     set:
+        type: internal                  #Internal command, used for perms check
+        encapsulate: False
+        timeout: 0
+    kick:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
         timeout: 0

@@ -105,7 +105,7 @@ class Executor(object):
     def reloadConfig(self):
         self.config = self.configManager.getConfig()
 
-    def invokeCommand(self, command, user, channel, postToIRC=True):
+    def invokeCommand(self, command, user, channel, params, postToIRC=True):
         pass
         '''
          - Make Executor the only entry-point when executing command
@@ -115,8 +115,8 @@ class Executor(object):
          - Executor needs a method call to allow it to send back to the invoker
         '''
         if self.auth.isUserAuthorized(command):
-            watchDogTmp = watchDogWorker('python ./bin/%s' % command,\
-                                self.conf['commands'][command]['timeout'],\
+            watchDogTmp = watchDogWorker('python ./bin/%s.py %s' % (command,\
+                        params), self.conf['commands'][command]['timeout'],\
                                 user, channel, postToIRC)
             watchDogTmp.daemon = True
             watchDogTmp.start()

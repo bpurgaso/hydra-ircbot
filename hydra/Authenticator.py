@@ -18,6 +18,10 @@ class Authenticator(object):
         self.configManager.registerListener(self)  # reg for config updates
         self.reloadConfig()
         self.sanityCheck()
+    
+    def die(self, msg):
+        print msg
+        exit()
 
     def reloadConfig(self):
         self.config = self.configManager.getConfig()

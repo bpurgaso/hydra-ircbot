@@ -8,7 +8,6 @@ from twisted.words.protocols import irc
 from twisted.internet import protocol
 from twisted.internet import reactor
 import time
-from datetime import datetime
 from ConfigManager import ConfigManager
 from Authenticator import Authenticator
 from Executor import Executor
@@ -44,7 +43,51 @@ class bot(irc.IRCClient):
         '''
         Called whenever an inbound message arrives
         '''
-        pass
+        print user, channel, msg
+        user = user.rsplit('!', 1)[0]
+
+    # Check to see if they're sending me a private message
+        if channel == self.nickname:
+            self.msg(user, "I've read your pm and ignored it.")
+            return
+
+        # Otherwise check to see if it is a message directed at me
+        if msg.startswith(self.nickname + ":"):
+            '''
+            embedded commands go here
+            '''
+            #OPME
+            if msg.rsplit()[1] == 'opme':
+                if self.auth.isUserAuthorized('opme', user):
+                    self.mode(channel, set, 'o', None, user)
+                else:
+                    self.msg(channel, "You aren't authorized for opme.")
+
+            #KICK
+            elif msg.rsplit()[1] == 'kick':
+                if self.auth.isUserAuthorized('kick', user):
+                    if self.nickname not in msg.rsplit()[2:]:
+                        for i in msg.rsplit()[2:]:
+                            self.kick(channel, i, 'Later broseph.')
+                    else:
+                        self.msg(channel, "Nope, not happening.")
+                else:
+                    self.kick(channel, user, 'Sorry bro, nothing personal.')
+            else:
+                '''
+                External script execution goes here
+                '''
+                if self.auth.isUserAuthorized(msg.rsplit()[1], user):
+                    for i in self.executor.invokeCommand(msg.rsplit[1], user,\
+                                        channel, msg.rsplit()[1], " ".join(\
+                                                    msg.rsplit()[2:])):
+                        self.msg(channel, i)
+                        time.sleep(self.config['msg_delay'])
+        else:
+            '''
+            filter processing go here
+            '''
+            pass
 
 
 class botFactory(protocol.ClientFactory):
@@ -89,7 +132,7 @@ class Hydra(object):
         b = botFactory(self.startChannel, self.configManager, self.auth,\
                        self.executor)
         reactor.connectTCP(n, p, b)  # @UndefinedVariable
-        reactor.run()  # @UndefinedVariable
+        reactor.run()                # @UndefinedVariable
 
     def reloadConfig(self):
         self.config = self.configManager.getConfig()
