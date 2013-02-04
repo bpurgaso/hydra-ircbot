@@ -20,7 +20,7 @@ class ConfigManager(object):
         '''
         Constructor
         '''
-        self.config = self.loadConfigFromDisk()
+        self.config = self.lastKnownGoodConfig = self.loadConfigFromDisk()
         self.listeners = []
 
     def loadConfigFromDisk(self):
@@ -30,9 +30,16 @@ class ConfigManager(object):
         return tmp
 
     def reload(self):
-        print self.config
+        self.config = self.lastKnownGoodConfig
         self.config = self.loadConfigFromDisk()
-        print self.config
+        for i in self.listeners:
+            try:
+                i.reloadConfig()
+            except:
+                print 'Reload Config Fail:  %s' % str(i)
+
+    def rollBack(self):
+        self.config = self.lastKnownGoodConfig
         for i in self.listeners:
             try:
                 i.reloadConfig()

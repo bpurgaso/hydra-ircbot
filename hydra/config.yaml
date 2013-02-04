@@ -11,7 +11,7 @@ groups:
     user:
         inherits_from: None             #Establish hierarchy
         commands:                       #Command List
-          - help
+          - helpjh
           - rainbow
           - swedish
           - beaker
@@ -31,7 +31,7 @@ groups:
           - '*'                         #First position * unlocks all commands
 users:
     bpurgaso:
-        group: user
+        group: admin
 commands:
     rainbow:                            #Command Name
         type: external                  #External command, execute with subproc

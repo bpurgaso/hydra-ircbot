@@ -78,6 +78,9 @@ class bot(irc.IRCClient):
                 if self.auth.isUserAuthorized('reload', user):
                     self.configManager.reload()
                     self.msg(channel, "Configuration Reloaded")
+                    if not self.auth.sanityCheck(False):
+                        self.msg(channel, "Configuration Sanity is suspect, "\
+                         "rolling back.")
                 else:
                     self.msg(channel, "You aren't authorized for reload.")
 

@@ -17,7 +17,7 @@ class Authenticator(object):
         self.configManager = configManager
         self.configManager.registerListener(self)  # reg for config updates
         self.reloadConfig()
-        self.sanityCheck()
+        self.sanityCheck(True)
 
     def die(self, msg):
         print msg
@@ -74,7 +74,7 @@ class Authenticator(object):
     def getHelpForCommand(self, command):
         return self.config['commands'][command]['help']
 
-    def sanityCheck(self):
+    def sanityCheck(self, fatal=False):
         '''
         all inherits_from are valid
         all command entries within a group map to valid commands
@@ -108,5 +108,10 @@ class Authenticator(object):
                   (prefix, i, group_entry)
                 sane = False
 
-        if not sane:
+        if not sane and fatal:
             self.die('System not sane, halting.')
+        elif not sane:
+            print 'wtf mate'
+            self.configManager.rollBack()
+            return False
+        return True
