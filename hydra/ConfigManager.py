@@ -52,8 +52,8 @@ class ConfigManager(object):
     def registerListener(self, obj):
         self.listeners.append(obj)
 
-    def saveConfigToDisk(self):
+    def saveConfigToDisk(self, config):
         f = open('config.yaml', 'w')
-        f.write(yaml.dump(self.config, default_flow_style=False))
+        f.write(yaml.dump(config, default_flow_style=False))
         f.close()
         self.reload()

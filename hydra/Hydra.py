@@ -56,15 +56,47 @@ class bot(irc.IRCClient):
             '''
             embedded commands go here
             '''
+
+            #REGISTER
+            if msg.rsplit()[1].lower() == 'register':
+                if self.auth.isUserAuthorized('register', user):
+                    self.msg(channel, self.auth.registerUser(user, 'default'))
+                else:
+                    self.msg(channel, "You aren't authorized for register.")
+            #PROMOTE
+            elif msg.rsplit()[1].lower() == 'promote':
+                if self.auth.isUserAuthorized('promote', user):
+                    try:
+                        target_uname = msg.rsplit()[2].lower()
+                        target_group = msg.rsplit()[3].lower()
+
+                        if self.auth.getPowerOfUser(user) <=\
+                            self.auth.getPowerOfGroup(target_group):
+
+                            self.postToIRC(channel, [self.auth.registerUser(\
+                                                target_uname, target_group)])
+                        else:
+                            self.postToIRC(channel, ['%s, your power level is'\
+                                                     ' insufficient.' % user])
+                    except:
+                        self.postToIRC(channel, ['Check your formatting and'\
+                                                 ' try again.'])
+                else:
+                    self.msg(channel, "You aren't authorized for register.")
+            #WHOAMI
+            elif msg.rsplit()[1].lower() == 'whoami':
+                if self.auth.isUserAuthorized('whoami', user):
+                    self.postToIRC(channel, [self.auth.whoami(user)])
+                else:
+                    self.msg(channel, "You aren't authorized for register.")
             #OPME
-            if msg.rsplit()[1] == 'opme':
+            elif msg.rsplit()[1].lower() == 'opme':
                 if self.auth.isUserAuthorized('opme', user):
                     self.mode(channel, set, 'o', None, user)
                 else:
                     self.msg(channel, "You aren't authorized for opme.")
-
             #HELP
-            elif msg.rsplit()[1] == 'help':
+            elif msg.rsplit()[1].lower() == 'help':
                 if self.auth.isUserAuthorized('help', user):
                     for i in self.auth.getAvailableCommandsForUser(user):
                         self.msg(channel, '%s:  %s' %\
@@ -72,9 +104,8 @@ class bot(irc.IRCClient):
                         time.sleep(self.config['msg_delay'])
                 else:
                     self.msg(channel, "You aren't authorized for help.")
-
             #RELOAD
-            elif msg.rsplit()[1] == 'reload':
+            elif msg.rsplit()[1].lower() == 'reload':
                 if self.auth.isUserAuthorized('reload', user):
                     self.configManager.reload()
                     self.msg(channel, "Configuration Reloaded")
@@ -83,9 +114,8 @@ class bot(irc.IRCClient):
                          "rolling back.")
                 else:
                     self.msg(channel, "You aren't authorized for reload.")
-
             #KICK
-            elif msg.rsplit()[1] == 'kick':
+            elif msg.rsplit()[1].lower() == 'kick':
                 if self.auth.isUserAuthorized('kick', user):
                     if self.nickname not in msg.rsplit()[2:]:
                         for i in msg.rsplit()[2:]:
@@ -98,10 +128,10 @@ class bot(irc.IRCClient):
                 '''
                 External script execution goes here
                 '''
-                if self.auth.isUserAuthorized(msg.rsplit()[1], user):
+                if self.auth.isUserAuthorized(msg.rsplit()[1].lower(), user):
                     #kick off the async call
-                    self.executor.invokeCommand(self, msg.rsplit()[1], user,\
-                                channel, " ".join(msg.rsplit()[2:]), True)
+                    self.executor.invokeCommand(self, msg.rsplit()[1].lower(),\
+                            user, channel, " ".join(msg.rsplit()[2:]), True)
                 else:
                     self.msg(channel, "You aren't authorized for %s." %\
                              (msg.rsplit()[1]))

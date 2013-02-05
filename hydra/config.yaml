@@ -1,81 +1,103 @@
-network : wright.freenode.net
-port : 6667
-nick : brobot
-msg_delay : 0.2
 channels:
-    hydratestchannel:
-        key: ''
-        autojoin: True
-defaultgroup : user
-groups:
-    user:
-        inherits_from: None             #Establish hierarchy
-        commands:                       #Command List
-          - help
-          - rainbow
-          - swedish
-          - beaker
-    moderator:
-        inherits_from: user             #Establish hierarchy
-        commands:                       #Command List
-          - reload
-    admin:
-        inherits_from: moderator        #Establish hierarchy
-        commands:                       #Command List
-          - opme
-          - kick
-          - promote
-    creator:
-        inherits_from: admin            #Establish hierarchy
-        commands:                       #No extra needed
-          - '*'                         #First position * unlocks all commands
-users:
-    bpurgaso:
-        group: creator
+  hydratestchannel:
+    autojoin: true
+    key: ''
 commands:
-    rainbow:                            #Command Name
-        type: external                  #External command, execute with subproc
-        encapsulate: True               #Sanitize and surround params in quotes
-        timeout: 5                      #Minimal Timeout for external command
-        help: Colorfies Text!
-    swedish:
-        type: external
-        encapsulate: True
-        timeout: 5
-        help: Speak like the swedish chef!
-    beaker:
-        type: external
-        encapsulate: True
-        timeout: 5
-        help: Speak like beaker!
-    broism:
-        type: external
-        encapsulate: True
-        timeout: 5
-        help: Speak like beaker!
-    opme:
-        type: internal                  #Internal command, used for perms check
-        encapsulate: False
-        timeout: 0
-        help: Request OP status from brobot.
-    promote:
-        type: internal                  #Internal command, used for perms check
-        encapsulate: False
-        timeout: 0
-        help: Unimplemented
-    reload:
-        type: internal                  #Internal command, used for perms check
-        encapsulate: False
-        timeout: 0
-        help: Reloads the global configs
-    kick:
-        type: internal                  #Internal command, used for perms check
-        encapsulate: False
-        timeout: 0
-        help: Kick a user or users from the channel!
-    help:
-        type: internal                  #Internal command, used for perms check
-        encapsulate: False
-        timeout: 0
-        help: Kick a user or users from the channel!
-
+  beaker:
+    encapsulate: true
+    help: Speak like beaker!
+    timeout: 5
+    type: external
+  broism:
+    encapsulate: true
+    help: Speak like beaker!
+    timeout: 5
+    type: external
+  help:
+    encapsulate: false
+    help: List help for available commands.
+    timeout: 0
+    type: internal
+  kick:
+    encapsulate: false
+    help: Kick a user or users from the channel!
+    timeout: 0
+    type: internal
+  opme:
+    encapsulate: false
+    help: Request OP status from brobot.
+    timeout: 0
+    type: internal
+  promote:
+    encapsulate: false
+    help: promote [user] [group]
+    timeout: 0
+    type: internal
+  rainbow:
+    encapsulate: true
+    help: Colorfies Text!
+    timeout: 5
+    type: external
+  register:
+    encapsulate: false
+    help: register as a user
+    timeout: 0
+    type: internal
+  reload:
+    encapsulate: false
+    help: Reloads the global configs
+    timeout: 0
+    type: internal
+  swedish:
+    encapsulate: true
+    help: Speak like the swedish chef!
+    timeout: 5
+    type: external
+  whoami:
+    encapsulate: false
+    help: See how I perceive you.
+    timeout: 0
+    type: internal
+default_register_group: power_user
+defaultgroup: user
+groups:
+  admin:
+    commands:
+    - opme
+    - kick
+    - promote
+    inherits_from: moderator
+    power_level: 1
+  creator:
+    commands:
+    - '*'
+    inherits_from: admin
+    power_level: 0
+  moderator:
+    commands:
+    - reload
+    inherits_from: user
+    power_level: 25
+  power_user:
+    commands:
+    - rainbow
+    - swedish
+    - beaker
+    inherits_from: user
+    power_level: 75
+  user:
+    commands:
+    - help
+    - register
+    - whoami
+    inherits_from: None
+    power_level: 100
+msg_delay: 0.2
+network: wright.freenode.net
+nick: brobot
+port: 6667
+users:
+  asdfasdf987:
+    group: moderator
+  bpurgaso:
+    group: creator

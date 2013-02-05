@@ -71,8 +71,36 @@ class Authenticator(object):
         else:
             return False
 
+    def getPowerOfGroup(self, group):
+        return self.config['groups'][group]['power_level']
+
+    def getPowerOfUser(self, user):
+        return self.getPowerOfGroup(self.getGroup(user))
+
     def getHelpForCommand(self, command):
         return self.config['commands'][command]['help']
+
+    def registerUser(self, uname, group='default'):
+        if group == 'default':
+            group = self.config['default_register_group']
+
+        if uname in self.config['users'].keys() and group ==\
+            self.getGroup(uname):
+
+            return "Username (%s) is already registered." % uname
+
+        self.config['users'][uname] = {'group': group}
+
+        self.configManager.saveConfigToDisk(self.config)
+        self.configManager.reload()
+        return "%s is now recognized as a %s" % (uname, group)
+
+    def whoami(self, uname):
+        if uname in self.config['users'].keys():
+            return "You are %s, %s." % (uname, self.getGroup(uname))
+        else:
+            return 'I do not recognize you.  Register with the \'register\' '\
+                'command.'
 
     def sanityCheck(self, fatal=False):
         '''
@@ -108,10 +136,17 @@ class Authenticator(object):
                   (prefix, i, group_entry)
                 sane = False
 
+        #check all power_levels
+        for i in self.config['groups'].keys():
+            tmp = []
+            if self.getPowerOfGroup(i) in tmp:
+                sane = False
+                print "power_level conflict:  %s" % self.getPowerOfGroup(i)
+                tmp.append(i)
+
         if not sane and fatal:
             self.die('System not sane, halting.')
         elif not sane:
-            print 'wtf mate'
             self.configManager.rollBack()
             return False
         return True
