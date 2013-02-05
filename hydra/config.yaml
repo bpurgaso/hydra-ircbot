@@ -97,7 +97,6 @@ network: wright.freenode.net
 nick: brobot
 port: 6667
 users:
-  asdfasdf987:
-    group: moderator
   bpurgaso:
     group: creator
+
