@@ -48,11 +48,6 @@ commands:
         encapsulate: True
         timeout: 5
         help: Speak like beaker!
-    broism:
-        type: external
-        encapsulate: True
-        timeout: 5
-        help: Speak like beaker!
     opme:
         type: internal                  #Internal command, used for perms check
         encapsulate: False
