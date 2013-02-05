@@ -11,7 +11,7 @@ groups:
     user:
         inherits_from: None             #Establish hierarchy
         commands:                       #Command List
-          - helpjh
+          - help
           - rainbow
           - swedish
           - beaker
@@ -44,6 +44,11 @@ commands:
         timeout: 5
         help: Speak like the swedish chef!
     beaker:
+        type: external
+        encapsulate: True
+        timeout: 5
+        help: Speak like beaker!
+    broism:
         type: external
         encapsulate: True
         timeout: 5

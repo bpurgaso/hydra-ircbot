@@ -115,6 +115,10 @@ class bot(irc.IRCClient):
         for i in lst:
             self.msg(channel, i)
             time.sleep(self.config['msg_delay'])
+        try:
+            reactor.run()  # @UndefinedVariable
+        except:
+            pass
 
 
 class botFactory(protocol.ClientFactory):
