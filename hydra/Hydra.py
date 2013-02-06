@@ -99,9 +99,9 @@ class bot(irc.IRCClient):
             elif msg.rsplit()[1].lower() == 'help':
                 if self.auth.isUserAuthorized('help', user):
                     for i in self.auth.getAvailableCommandsForUser(user):
-                        self.msg(channel, '%s:  %s' %\
+                        self.msg(user, '%s:  %s' %\
                                  (i, self.auth.getHelpForCommand(i)))
-                        time.sleep(self.config['msg_delay'])
+                        self.msg(channel, 'I\'ve sent you a pm.')
                 else:
                     self.msg(channel, "You aren't authorized for help.")
             #RELOAD

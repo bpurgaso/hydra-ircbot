@@ -10,7 +10,7 @@ commands:
     type: external
   broism:
     encapsulate: true
-    help: Speak like beaker!
+    help: Hear about the word of bro!
     timeout: 5
     type: external
   help:
@@ -40,7 +40,7 @@ commands:
     type: external
   register:
     encapsulate: false
-    help: register as a user
+    help: Register as a user
     timeout: 0
     type: internal
   reload:
@@ -76,7 +76,7 @@ groups:
   moderator:
     commands:
     - reload
-    inherits_from: user
+    inherits_from: power_user
     power_level: 25
   power_user:
     commands:
