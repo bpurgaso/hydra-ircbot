@@ -7,10 +7,12 @@ Created on Feb 3, 2013
 from twisted.words.protocols import irc
 from twisted.internet import protocol
 from twisted.internet import reactor
+from twisted.internet import threads
 import time
 from ConfigManager import ConfigManager
 from Authenticator import Authenticator
 from Executor import Executor
+from subprocess import PIPE, STDOUT, Popen
 
 
 class bot(irc.IRCClient):
@@ -46,66 +48,70 @@ class bot(irc.IRCClient):
         print user, channel, msg
         user = user.rsplit('!', 1)[0]
 
-    # Check to see if they're sending me a private message
+        # Check to see if they're sending me a private message
         if channel == self.nickname:
-            self.msg(user, "I've read your pm and ignored it.")
-            return
+            channel = user
+            index = 0
+        else:
+            index = 1
 
         # Otherwise check to see if it is a message directed at me
-        if msg.startswith(self.nickname + ":"):
+        if msg.startswith(self.nickname + ":") or index == 0:
             '''
             embedded commands go here
             '''
+            command = msg.rsplit()[index].lower()
 
             #REGISTER
-            if msg.rsplit()[1].lower() == 'register':
+            if command == 'register':
                 if self.auth.isUserAuthorized('register', user):
                     self.msg(channel, self.auth.registerUser(user, 'default'))
                 else:
                     self.msg(channel, "You aren't authorized for register.")
             #PROMOTE
-            elif msg.rsplit()[1].lower() == 'promote':
+            elif command == 'promote':
                 if self.auth.isUserAuthorized('promote', user):
                     try:
-                        target_uname = msg.rsplit()[2].lower()
-                        target_group = msg.rsplit()[3].lower()
+                        target_uname = msg.rsplit()[index + 1].lower()
+                        target_group = msg.rsplit()[index + 2].lower()
 
                         if self.auth.getPowerOfUser(user) <=\
                             self.auth.getPowerOfGroup(target_group):
 
-                            self.postToIRC(channel, [self.auth.registerUser(\
-                                                target_uname, target_group)])
+                            self.postToIRC((channel, [self.auth.registerUser(\
+                                                target_uname, target_group)]))
                         else:
-                            self.postToIRC(channel, ['%s, your power level is'\
-                                                     ' insufficient.' % user])
+                            self.postToIRC((channel, ['%s, your power level'\
+                                                      ' is'\
+                                                     ' insufficient.' % user]))
                     except:
-                        self.postToIRC(channel, ['Check your formatting and'\
-                                                 ' try again.'])
+                        self.postToIRC((channel, ['Check your formatting and'\
+                                                 ' try again.']))
                 else:
                     self.msg(channel, "You aren't authorized for register.")
             #WHOAMI
-            elif msg.rsplit()[1].lower() == 'whoami':
+            elif command == 'whoami':
                 if self.auth.isUserAuthorized('whoami', user):
-                    self.postToIRC(channel, [self.auth.whoami(user)])
+                    self.postToIRC((channel, [self.auth.whoami(user)]))
                 else:
                     self.msg(channel, "You aren't authorized for register.")
             #OPME
-            elif msg.rsplit()[1].lower() == 'opme':
+            elif command == 'opme':
                 if self.auth.isUserAuthorized('opme', user):
                     self.mode(channel, set, 'o', None, user)
                 else:
                     self.msg(channel, "You aren't authorized for opme.")
             #HELP
-            elif msg.rsplit()[1].lower() == 'help':
+            elif command == 'help':
                 if self.auth.isUserAuthorized('help', user):
                     for i in self.auth.getAvailableCommandsForUser(user):
                         self.msg(user, '%s:  %s' %\
                                  (i, self.auth.getHelpForCommand(i)))
-                        self.msg(channel, 'I\'ve sent you a pm.')
+                    self.msg(channel, 'I\'ve sent you a pm.')
                 else:
                     self.msg(channel, "You aren't authorized for help.")
             #RELOAD
-            elif msg.rsplit()[1].lower() == 'reload':
+            elif command == 'reload':
                 if self.auth.isUserAuthorized('reload', user):
                     self.configManager.reload()
                     self.msg(channel, "Configuration Reloaded")
@@ -115,10 +121,10 @@ class bot(irc.IRCClient):
                 else:
                     self.msg(channel, "You aren't authorized for reload.")
             #KICK
-            elif msg.rsplit()[1].lower() == 'kick':
+            elif command == 'kick':
                 if self.auth.isUserAuthorized('kick', user):
-                    if self.nickname not in msg.rsplit()[2:]:
-                        for i in msg.rsplit()[2:]:
+                    if self.nickname not in msg.rsplit()[index + 1:]:
+                        for i in msg.rsplit()[index + 1:]:
                             self.kick(channel, i, 'Later broseph.')
                     else:
                         self.msg(channel, "Nope, not happening.")
@@ -128,27 +134,40 @@ class bot(irc.IRCClient):
                 '''
                 External script execution goes here
                 '''
-                if self.auth.isUserAuthorized(msg.rsplit()[1].lower(), user):
+                if self.auth.isUserAuthorized(msg.rsplit()[index].lower(),\
+                                                                        user):
                     #kick off the async call
-                    self.executor.invokeCommand(self, msg.rsplit()[1].lower(),\
-                            user, channel, " ".join(msg.rsplit()[2:]), True)
+                    #channel, command, params
+                    self.invokeCommand(channel,\
+                                       command,\
+                                       (" ".join(msg.rsplit()[index + 1:])))
                 else:
                     self.msg(channel, "You aren't authorized for %s." %\
-                             (msg.rsplit()[1]))
+                             (command))
         else:
             '''
             filter processing go here
             '''
             pass
 
-    def postToIRC(self, channel, lst):
-        for i in lst:
-            self.msg(channel, i)
-            time.sleep(self.config['msg_delay'])
-        try:
-            reactor.run()  # @UndefinedVariable
-        except:
-            pass
+    def invokeCommand(self, channel, command, params):
+        command = "exec python ./bin/%s.py %s 2> /dev/null" % (command, params)
+        tmp = threads.deferToThread(self.__shellCall, channel, command)
+        tmp.addCallback(self.postToIRC)
+
+    def __shellCall(self, channel, command):
+        self.p = Popen(
+            command,
+            stderr=STDOUT,
+            stdout=PIPE,
+            close_fds=True,
+            shell=True)
+        out, err = self.p.communicate()  # @UnusedVariable
+        return (channel, out.splitlines())
+
+    def postToIRC(self, tpl):
+        for i in tpl[1]:
+            self.msg(tpl[0], i)
 
 
 class botFactory(protocol.ClientFactory):

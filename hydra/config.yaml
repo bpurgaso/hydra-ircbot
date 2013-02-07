@@ -99,4 +99,3 @@ port: 6667
 users:
   bpurgaso:
     group: creator
-
