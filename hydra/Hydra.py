@@ -8,10 +8,8 @@ from twisted.words.protocols import irc
 from twisted.internet import protocol
 from twisted.internet import reactor
 from twisted.internet import threads
-import time
 from ConfigManager import ConfigManager
 from Authenticator import Authenticator
-from Executor import Executor
 from subprocess import PIPE, STDOUT, Popen
 
 
@@ -32,7 +30,6 @@ class bot(irc.IRCClient):
         self.configManager.registerListener(self)
         self.config = self.configManager.getConfig()
         self.auth = self.factory.auth
-        self.executor = self.factory.executor
         print "Signed on as %s." % (self.nickname)
         for i in self.config['channels'].keys():
             if self.config['channels'][i]['autojoin']:
@@ -55,7 +52,7 @@ class bot(irc.IRCClient):
         else:
             index = 1
 
-        # Otherwise check to see if it is a message directed at me
+        # See if the message directed at me
         if msg.startswith(self.nickname + ":") or index == 0:
             '''
             embedded commands go here
@@ -101,6 +98,17 @@ class bot(irc.IRCClient):
                     self.mode(channel, set, 'o', None, user)
                 else:
                     self.msg(channel, "You aren't authorized for opme.")
+            #AUTOOP
+            elif command == 'autoop':
+                if self.auth.isUserAuthorized('autoop', user):
+                    if msg.rsplit()[2].lower() == 'on':
+                        self.postToIRC((channel, self.auth.toggleAutoOp(\
+                                                       user, channel, True)))
+                    else:
+                        self.postToIRC((channel, self.auth.toggleAutoOp(\
+                                                        user, channel, False)))
+                else:
+                    self.msg(channel, "You aren't authorized for autoop.")
             #HELP
             elif command == 'help':
                 if self.auth.isUserAuthorized('help', user):
@@ -169,6 +177,16 @@ class bot(irc.IRCClient):
         for i in tpl[1]:
             self.msg(tpl[0], i)
 
+    def userJoined(self, user, channel):
+        channel_dict = channel.replace('#', '')
+        if self.config['channels'][channel_dict]['enable_autoop'] and\
+                    user in self.config['channels'][channel_dict]['autoop']:
+            self.mode(channel, set, 'o', None, user)
+
+        if self.config['channels'][channel_dict]['enable_greeting']:
+            self.msg(channel, "%s: %s" % (user,\
+                    self.config['channels'][channel_dict]['greeting']))
+
 
 class botFactory(protocol.ClientFactory):
     """
@@ -176,12 +194,11 @@ class botFactory(protocol.ClientFactory):
     """
     protocol = bot
 
-    def __init__(self, channel, configManager, auth, executor):
+    def __init__(self, channel, configManager, auth):
         self.startChannel = channel
         self.configManager = configManager
         self.config = self.configManager.getConfig()
         self.auth = auth
-        self.executor = executor
 
         #required
         self.nickname = self.config['nick']
@@ -205,12 +222,10 @@ class Hydra(object):
         self.config = self.configManager.getConfig()
         self.configManager.registerListener(self)
         self.auth = Authenticator(self.configManager)
-        self.executor = Executor(self.configManager, self.auth)
 
         n = self.config['network']
         p = self.config['port']
-        b = botFactory(self.startChannel, self.configManager, self.auth,\
-                       self.executor)
+        b = botFactory(self.startChannel, self.configManager, self.auth)
         reactor.connectTCP(n, p, b)  # @UndefinedVariable
         reactor.run()                # @UndefinedVariable
 

@@ -1,8 +1,18 @@
 channels:
   hydratestchannel:
     autojoin: true
+    autoop:
+     - bpurgaso
+    enable_autoop: true
+    enable_greeting: true
+    greeting: Test welcome, please ignore.
     key: ''
 commands:
+  autoop:
+    encapsulate: false
+    help: Register for autoop in this channel.
+    timeout: 0
+    type: internal
   beaker:
     encapsulate: true
     help: Speak like beaker!
@@ -65,7 +75,7 @@ groups:
     commands:
     - opme
     - kick
-    - promote
+    - autoop
     inherits_from: moderator
     power_level: 1
   creator:
@@ -76,6 +86,7 @@ groups:
   moderator:
     commands:
     - reload
+    - promote
     inherits_from: power_user
     power_level: 25
   power_user:

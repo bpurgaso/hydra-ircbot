@@ -102,6 +102,24 @@ class Authenticator(object):
             return 'I do not recognize you.  Register with the \'register\' '\
                 'command.'
 
+    def toggleAutoOp(self, uname, channel, enable):
+        channel = channel.replace('#', '')
+        print "got here", enable, channel, uname
+        if enable:
+            if uname not in self.config['channels'][channel]['autoop']:
+                self.config['channels'][channel]['autoop'].append(str(uname))
+        else:
+            try:
+                self.config['channels'][channel]['autoop'].remove(str(uname))
+            except:
+                pass
+
+        self.configManager.saveConfigToDisk(self.config)
+
+        if enable:
+            return "autoop enabled for %s in %s." % (uname, '#' + channel)
+        return "autoop disabled for %s in %s." % (uname, '#' + channel)
+
     def sanityCheck(self, fatal=False):
         '''
         all inherits_from are valid

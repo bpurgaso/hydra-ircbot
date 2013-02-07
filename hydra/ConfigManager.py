@@ -30,7 +30,7 @@ class ConfigManager(object):
         return tmp
 
     def reload(self):
-        self.config = self.lastKnownGoodConfig
+        self.lastKnownGoodConfig = self.config
         self.config = self.loadConfigFromDisk()
         for i in self.listeners:
             try:
