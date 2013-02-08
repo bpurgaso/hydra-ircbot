@@ -1,16 +1,16 @@
 channels:
-  hydratestchannel:
+  brotest:
     autojoin: true
     autoop:
-     - bpurgaso
+    - bpurgaso
     enable_autoop: true
-    enable_greeting: true
-    greeting: Test welcome, please ignore.
+    enable_greeting: false
+    greeting: 'This channel is for testing. duh'
     key: ''
 commands:
   autoop:
     encapsulate: false
-    help: Register for autoop in this channel.
+    help: Register for autoop in this channel. autoop [on|off]
     timeout: 0
     type: internal
   beaker:
@@ -68,14 +68,14 @@ commands:
     help: See how I perceive you.
     timeout: 0
     type: internal
+default_autoop:
+- bpurgaso
 default_register_group: power_user
 defaultgroup: user
 groups:
   admin:
     commands:
-    - opme
     - kick
-    - autoop
     inherits_from: moderator
     power_level: 1
   creator:
@@ -87,6 +87,8 @@ groups:
     commands:
     - reload
     - promote
+    - autoop
+    - opme
     inherits_from: power_user
     power_level: 25
   power_user:
@@ -110,3 +112,4 @@ port: 6667
 users:
   bpurgaso:
     group: creator
+

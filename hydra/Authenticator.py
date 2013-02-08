@@ -92,7 +92,6 @@ class Authenticator(object):
         self.config['users'][uname] = {'group': group}
 
         self.configManager.saveConfigToDisk(self.config)
-        self.configManager.reload()
         return "%s is now recognized as a %s" % (uname, group)
 
     def whoami(self, uname):
@@ -119,6 +118,19 @@ class Authenticator(object):
         if enable:
             return "autoop enabled for %s in %s." % (uname, '#' + channel)
         return "autoop disabled for %s in %s." % (uname, '#' + channel)
+
+    def createChannelEntry(self, channel):
+        self.config['channels'][channel] = {}
+        self.config['channels'][channel]['autojoin'] = True
+        self.config['channels'][channel]['autoop'] =\
+            list(self.config['default_autoop'])
+        self.config['channels'][channel]['enable_autoop'] = True
+        self.config['channels'][channel]['enable_greeting'] = False
+        self.config['channels'][channel]['greeting'] =\
+            'Generic greeting and expression of joy.'
+        self.config['channels'][channel]['key'] = ''
+
+        self.configManager.saveConfigToDisk(self.config)
 
     def sanityCheck(self, fatal=False):
         '''

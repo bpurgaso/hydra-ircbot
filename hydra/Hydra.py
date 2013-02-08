@@ -38,6 +38,17 @@ class bot(irc.IRCClient):
     def joined(self, channel):
         print "Joined %s." % (channel)
 
+    def irc_INVITE(self, prefix, params):
+        """ called by twisted,
+        if the bot was invited
+        """
+
+        channel = params[-1].lower().replace('#', '')
+        if channel not in self.config['channels'].keys():
+            self.auth.createChannelEntry(channel)
+
+        self.join(channel, self.config['channels'][channel]['key'])
+
     def privmsg(self, user, channel, msg):
         '''
         Called whenever an inbound message arrives
@@ -186,6 +197,17 @@ class bot(irc.IRCClient):
         if self.config['channels'][channel_dict]['enable_greeting']:
             self.msg(channel, "%s: %s" % (user,\
                     self.config['channels'][channel_dict]['greeting']))
+
+    def kickedFrom(self, channel, kicker, message):
+        """ called by twisted,
+        if the bot was kicked
+        """
+        channel = channel.replace('#', '')
+        if channel in self.config['channels'].keys() and\
+            self.config['channels'][channel]['autojoin']:
+
+            self.join(channel, self.config['channels'][channel]['key'])
+        self.msg(kicker, "Why would you do that to me brah?")
 
 
 class botFactory(protocol.ClientFactory):
