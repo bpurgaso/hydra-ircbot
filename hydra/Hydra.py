@@ -170,11 +170,13 @@ class bot(irc.IRCClient):
             pass
 
     def invokeCommand(self, channel, command, params):
-        command = "exec python ./bin/%s.py %s 2> /dev/null" % (command, params)
-        tmp = threads.deferToThread(self.__shellCall, channel, command)
+        tmp = threads.deferToThread(self.__shellCall, channel, command, params)
         tmp.addCallback(self.postToIRC)
 
-    def __shellCall(self, channel, command):
+    def __shellCall(self, channel, command, params):
+        command = self.sanitize(command)
+        params = self.sanitize(params)
+        command = "exec python ./bin/%s.py %s 2> /dev/null" % (command, params)
         self.p = Popen(
             command,
             stderr=STDOUT,
@@ -183,6 +185,11 @@ class bot(irc.IRCClient):
             shell=True)
         out, err = self.p.communicate()  # @UnusedVariable
         return (channel, out.splitlines())
+
+    def sanitize(self, s):
+        for i in self.config['sanitize']:
+            s = s.replace(i, '')
+        return s
 
     def postToIRC(self, tpl):
         for i in tpl[1]:

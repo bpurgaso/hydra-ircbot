@@ -5,7 +5,7 @@ channels:
     - bpurgaso
     enable_autoop: true
     enable_greeting: false
-    greeting: 'This channel is for testing. duh'
+    greeting: This channel is for testing. duh
     key: ''
 commands:
   autoop:
@@ -103,13 +103,23 @@ groups:
     - help
     - register
     - whoami
+    - broism
     inherits_from: None
     power_level: 100
 msg_delay: 0.2
 network: wright.freenode.net
 nick: brobot
 port: 6667
+sanitize:
+- ''''
+- '"'
+- ;
+- /
+- \
+- $(
+- )
+- '`'
+- '~'
 users:
   bpurgaso:
     group: creator
-
